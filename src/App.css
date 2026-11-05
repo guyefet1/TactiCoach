@@ -55,8 +55,12 @@
   padding: 48px 32px;
 }
 
+.page-heading {
+  margin-bottom: 32px;
+}
+
 .page h1 {
-  margin: 0 0 12px;
+  margin: 0 0 8px;
   color: var(--heading);
   font-size: clamp(2rem, 5vw, 2.75rem);
   letter-spacing: -0.05em;
@@ -65,6 +69,116 @@
 .page p {
   margin: 0;
   color: var(--text);
+}
+
+.player-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.player-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(22 39 36 / 5%);
+  transition:
+    box-shadow 180ms ease,
+    transform 180ms ease;
+}
+
+.player-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 30px rgb(22 39 36 / 11%);
+}
+
+.player-image {
+  display: block;
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+  object-position: center 24%;
+  background: var(--accent-soft);
+}
+
+.player-image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 4rem;
+  font-weight: 750;
+}
+
+.player-card-content {
+  padding: 16px;
+}
+
+.page .player-card-content h2 {
+  overflow: hidden;
+  margin: 0 0 6px;
+  color: var(--heading);
+  font-size: 1rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-card-content p {
+  color: var(--accent);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.loading-state {
+  display: flex;
+  min-height: 220px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--text);
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 750ms linear infinite;
+}
+
+.error-state {
+  border: 1px solid #f1c6c1;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fff7f6;
+}
+
+.page .error-state h2 {
+  margin: 0 0 8px;
+  color: #9c3328;
+  font-size: 1rem;
+}
+
+.error-state p {
+  color: #7d4a44;
+}
+
+.empty-state {
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (max-width: 640px) {
@@ -85,5 +199,18 @@
 
   .page {
     padding: 36px 20px;
+  }
+
+  .player-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+  }
+
+  .player-image {
+    height: 200px;
+  }
+
+  .player-card-content {
+    padding: 12px;
   }
 }
