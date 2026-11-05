@@ -34,10 +34,22 @@ describe('TactiCoach app', () => {
     expect(
       screen.getByRole('heading', { name: 'Maccabi Tel Aviv Squad' }),
     ).toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', { name: 'Player Profile' }),
+    ).not.toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Eran Zahavi' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Gabi Kanichowsky' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Dor Peretz' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Raz Shlomo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Roi Mishpati' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ofir Davidzada' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Roy Revivo' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dan Glazer' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Joris van Overeem' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Sagiv Yehezkel' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dor Turgeman' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Osher Davida' })).toBeInTheDocument()
+    expect(document.querySelectorAll('.player-card')).toHaveLength(12)
   })
 
   it('filters players by name without regard to case and combines the position filter', async () => {
@@ -46,7 +58,7 @@ describe('TactiCoach app', () => {
     await screen.findByRole('heading', { name: 'Eran Zahavi' })
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search players' }), {
-      target: { value: 'DOR' },
+      target: { value: 'DOR PERETZ' },
     })
     fireEvent.change(screen.getByRole('combobox', { name: 'Position' }), {
       target: { value: 'Midfielder' },
@@ -92,19 +104,27 @@ describe('TactiCoach app', () => {
     expect(await screen.findByRole('heading', { name: 'Maccabi Tel Aviv Squad' })).toBeInTheDocument()
   })
 
-  it('requires exactly 11 players and saves the selected lineup to localStorage', async () => {
+  it('shows 12 Maccabi fallback players and requires exactly 11 for the lineup', async () => {
     renderApp('/tactics')
 
     const saveButton = screen.getByRole('button', { name: 'Save Tactics' })
     expect(saveButton).toBeDisabled()
 
     const checkboxes = screen.getAllByRole('checkbox')
-    expect(checkboxes).toHaveLength(11)
-    for (const checkbox of checkboxes) {
+    expect(checkboxes).toHaveLength(12)
+    expect(screen.getByText('Eran Zahavi')).toBeInTheDocument()
+    expect(screen.getByText('Gabi Kanichowsky')).toBeInTheDocument()
+    expect(screen.getByText('Dor Peretz')).toBeInTheDocument()
+    expect(screen.getByText('Raz Shlomo')).toBeInTheDocument()
+    expect(screen.getByText('Roi Mishpati')).toBeInTheDocument()
+    expect(screen.getByText('Ofir Davidzada')).toBeInTheDocument()
+
+    for (const checkbox of checkboxes.slice(0, 11)) {
       fireEvent.click(checkbox)
     }
 
     expect(screen.getByText('11 / 11 selected')).toBeInTheDocument()
+    expect(checkboxes[11]).toBeDisabled()
     expect(saveButton).toBeEnabled()
     fireEvent.click(saveButton)
 
@@ -112,23 +132,34 @@ describe('TactiCoach app', () => {
     const savedSquad: unknown = JSON.parse(
       window.localStorage.getItem('tacticCoach_squad') ?? 'null',
     )
-    expect(savedSquad).toHaveLength(11)
+    expect(savedSquad).toEqual([
+      'fallback-eran-zahavi',
+      'fallback-gabi-kanichowsky',
+      'fallback-dor-peretz',
+      'fallback-raz-shlomo',
+      'fallback-ofir-davidzada',
+      'fallback-roi-mishpati',
+      'fallback-roy-revivo',
+      'fallback-dan-glazer',
+      'fallback-joris-van-overeem',
+      'fallback-sagiv-yehezkel',
+      'fallback-dor-turgeman',
+    ])
   })
 
-  it('loads the saved starting lineup from localStorage on mount', async () => {
-    mockApiFailure()
+  it('loads the saved Maccabi starting 11 from localStorage on mount', async () => {
     const savedIds = [
-      'fallback-david-raya',
-      'fallback-ben-white',
-      'fallback-william-saliba',
-      'fallback-gabriel-magalhaes',
-      'fallback-jurrien-timber',
-      'fallback-declan-rice',
-      'fallback-martin-odegaard',
-      'fallback-kai-havertz',
-      'fallback-bukayo-saka',
-      'fallback-gabriel-martinelli',
-      'fallback-leandro-trossard',
+      'fallback-eran-zahavi',
+      'fallback-gabi-kanichowsky',
+      'fallback-dor-peretz',
+      'fallback-raz-shlomo',
+      'fallback-ofir-davidzada',
+      'fallback-roi-mishpati',
+      'fallback-roy-revivo',
+      'fallback-dan-glazer',
+      'fallback-joris-van-overeem',
+      'fallback-sagiv-yehezkel',
+      'fallback-dor-turgeman',
     ]
     window.localStorage.setItem('tacticCoach_squad', JSON.stringify(savedIds))
     const { container } = renderApp('/tactics')

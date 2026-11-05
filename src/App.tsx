@@ -45,87 +45,66 @@ const fallbackPlayers: TheSportsDbPlayer[] = [
       'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Raz_Shlomo_Hapoel_2018_2.jpg/500px-Raz_Shlomo_Hapoel_2018_2.jpg',
     strPosition: 'Defender',
   },
-]
-
-const tacticsPlayers: TheSportsDbPlayer[] = [
   {
-    idPlayer: 'fallback-david-raya',
-    strPlayer: 'David Raya',
+    idPlayer: 'fallback-ofir-davidzada',
+    strPlayer: 'Ofir Davidzada',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Defender',
+  },
+  {
+    idPlayer: 'fallback-roi-mishpati',
+    strPlayer: 'Roi Mishpati',
     strRender: null,
     strThumb: null,
     strPosition: 'Goalkeeper',
   },
   {
-    idPlayer: 'fallback-ben-white',
-    strPlayer: 'Ben White',
+    idPlayer: 'fallback-roy-revivo',
+    strPlayer: 'Roy Revivo',
     strRender: null,
     strThumb: null,
     strPosition: 'Defender',
   },
   {
-    idPlayer: 'fallback-william-saliba',
-    strPlayer: 'William Saliba',
-    strRender: null,
-    strThumb: null,
-    strPosition: 'Defender',
-  },
-  {
-    idPlayer: 'fallback-gabriel-magalhaes',
-    strPlayer: 'Gabriel Magalhaes',
-    strRender: null,
-    strThumb: null,
-    strPosition: 'Defender',
-  },
-  {
-    idPlayer: 'fallback-jurrien-timber',
-    strPlayer: 'Jurrien Timber',
-    strRender: null,
-    strThumb: null,
-    strPosition: 'Defender',
-  },
-  {
-    idPlayer: 'fallback-declan-rice',
-    strPlayer: 'Declan Rice',
+    idPlayer: 'fallback-dan-glazer',
+    strPlayer: 'Dan Glazer',
     strRender: null,
     strThumb: null,
     strPosition: 'Midfielder',
   },
   {
-    idPlayer: 'fallback-martin-odegaard',
-    strPlayer: 'Martin Odegaard',
+    idPlayer: 'fallback-joris-van-overeem',
+    strPlayer: 'Joris van Overeem',
     strRender: null,
     strThumb: null,
     strPosition: 'Midfielder',
   },
   {
-    idPlayer: 'fallback-kai-havertz',
-    strPlayer: 'Kai Havertz',
+    idPlayer: 'fallback-sagiv-yehezkel',
+    strPlayer: 'Sagiv Yehezkel',
     strRender: null,
     strThumb: null,
     strPosition: 'Forward',
   },
   {
-    idPlayer: 'fallback-bukayo-saka',
-    strPlayer: 'Bukayo Saka',
+    idPlayer: 'fallback-dor-turgeman',
+    strPlayer: 'Dor Turgeman',
     strRender: null,
     strThumb: null,
     strPosition: 'Forward',
   },
   {
-    idPlayer: 'fallback-gabriel-martinelli',
-    strPlayer: 'Gabriel Martinelli',
-    strRender: null,
-    strThumb: null,
-    strPosition: 'Forward',
-  },
-  {
-    idPlayer: 'fallback-leandro-trossard',
-    strPlayer: 'Leandro Trossard',
+    idPlayer: 'fallback-osher-davida',
+    strPlayer: 'Osher Davida',
     strRender: null,
     strThumb: null,
     strPosition: 'Forward',
   },
 ]
+
+const tacticsPlayers = fallbackPlayers
+const startingLineupSize = 11
 
 const tacticsPlayerById = new Map(
   tacticsPlayers.map((player) => [player.idPlayer, player]),
@@ -170,6 +149,54 @@ const fallbackProfiles: Record<string, TheSportsDbPlayerProfile> = {
     strNationality: 'Israel',
     strDescriptionEN:
       'Raz Shlomo is an Israeli centre-back who plays in defence for Maccabi Tel Aviv.',
+  },
+  'fallback-roi-mishpati': {
+    ...fallbackPlayers[4],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Roi Mishpati is an Israeli goalkeeper for Maccabi Tel Aviv.',
+  },
+  'fallback-ofir-davidzada': {
+    ...fallbackPlayers[5],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Ofir Davidzada is an Israeli defender for Maccabi Tel Aviv.',
+  },
+  'fallback-roy-revivo': {
+    ...fallbackPlayers[6],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Roy Revivo is an Israeli defender for Maccabi Tel Aviv.',
+  },
+  'fallback-dan-glazer': {
+    ...fallbackPlayers[7],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Dan Glazer is an Israeli midfielder for Maccabi Tel Aviv.',
+  },
+  'fallback-joris-van-overeem': {
+    ...fallbackPlayers[8],
+    strNationality: 'Netherlands',
+    strDescriptionEN:
+      'Joris van Overeem is a Dutch midfielder for Maccabi Tel Aviv.',
+  },
+  'fallback-sagiv-yehezkel': {
+    ...fallbackPlayers[9],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Sagiv Yehezkel is an Israeli forward for Maccabi Tel Aviv.',
+  },
+  'fallback-dor-turgeman': {
+    ...fallbackPlayers[10],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Dor Turgeman is an Israeli forward for Maccabi Tel Aviv.',
+  },
+  'fallback-osher-davida': {
+    ...fallbackPlayers[11],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Osher Davida is an Israeli forward for Maccabi Tel Aviv.',
   },
 }
 
@@ -507,16 +534,17 @@ function Tactics() {
         const parsedSquad: unknown = JSON.parse(savedSquad)
         const isValidSquad =
           Array.isArray(parsedSquad) &&
-          parsedSquad.length === 11 &&
+          parsedSquad.length > 0 &&
+          parsedSquad.length <= startingLineupSize &&
           parsedSquad.every(
             (id): id is string =>
               typeof id === 'string' && tacticsPlayerById.has(id),
           ) &&
-          new Set(parsedSquad).size === 11
+          new Set(parsedSquad).size === parsedSquad.length
 
         if (!isValidSquad) {
           throw new Error(
-            'The saved lineup is invalid. Select 11 players and save it again.',
+            `The saved lineup is invalid. Select ${startingLineupSize} available players and save it again.`,
           )
         }
 
@@ -543,7 +571,7 @@ function Tactics() {
         return currentIds.filter((id) => id !== playerId)
       }
 
-      if (currentIds.length >= 11) {
+      if (currentIds.length >= startingLineupSize) {
         return currentIds
       }
 
@@ -552,8 +580,8 @@ function Tactics() {
   }
 
   function saveTactics() {
-    if (selectedPlayerIds.length !== 11) {
-      setError('Select exactly 11 players before saving your tactics.')
+    if (selectedPlayerIds.length !== startingLineupSize) {
+      setError(`Select exactly ${startingLineupSize} players before saving your tactics.`)
       return
     }
 
@@ -573,7 +601,7 @@ function Tactics() {
   return (
     <Page
       title="Tactics Board"
-      description="Choose exactly 11 players for your starting lineup."
+      description={`Choose exactly ${startingLineupSize} players for your starting lineup.`}
     >
       {isLoading ? (
         <div className="loading-state" role="status">
@@ -589,14 +617,15 @@ function Tactics() {
                 <p>Select players to build your starting 11.</p>
               </div>
               <span className="selection-count" aria-live="polite">
-                {selectedPlayerIds.length} / 11 selected
+                {selectedPlayerIds.length} / {startingLineupSize} selected
               </span>
             </div>
             <ul className="tactics-player-list">
               {tacticsPlayers.map((player) => {
                 const isSelected = selectedPlayerIds.includes(player.idPlayer)
                 const isUnavailable =
-                  !isSelected && selectedPlayerIds.length === 11
+                  !isSelected &&
+                  selectedPlayerIds.length === startingLineupSize
 
                 return (
                   <li key={player.idPlayer}>
@@ -651,7 +680,7 @@ function Tactics() {
             <button
               className="save-tactics-button"
               type="button"
-              disabled={selectedPlayerIds.length !== 11}
+              disabled={selectedPlayerIds.length !== startingLineupSize}
               onClick={saveTactics}
             >
               Save Tactics
@@ -818,7 +847,6 @@ function App() {
           <NavLink to="/" end>
             Squad
           </NavLink>
-          <NavLink to="/players/placeholder">Player Profile</NavLink>
           <NavLink to="/tactics">Tactics</NavLink>
           <NavLink to="/opponents">Opponents</NavLink>
         </nav>
