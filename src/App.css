@@ -151,28 +151,20 @@
   animation: spin 750ms linear infinite;
 }
 
-.error-state {
-  border: 1px solid #f1c6c1;
-  border-radius: 12px;
-  padding: 20px;
-  background: #fff7f6;
+.fallback-notice,
+.page .image-attribution {
+  margin: 0 0 20px;
+  color: var(--text);
+  font-size: 0.875rem;
 }
 
-.page .error-state h2 {
-  margin: 0 0 8px;
-  color: #9c3328;
-  font-size: 1rem;
+.page .image-attribution {
+  margin: 20px 0 0;
+  text-align: right;
 }
 
-.error-state p {
-  color: #7d4a44;
-}
-
-.empty-state {
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
+.image-attribution a {
+  color: var(--accent);
 }
 
 @keyframes spin {
