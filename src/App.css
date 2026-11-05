@@ -289,6 +289,184 @@
   outline-offset: 3px;
 }
 
+.tactics-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.9fr);
+  align-items: start;
+  gap: 24px;
+}
+
+.tactics-roster,
+.starting-eleven {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+  background: var(--surface);
+  box-shadow: 0 8px 24px rgb(22 39 36 / 5%);
+}
+
+.tactics-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.page .tactics-section-heading h2 {
+  margin: 0 0 4px;
+  color: var(--heading);
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.page .tactics-section-heading p {
+  color: var(--text);
+  font-size: 0.875rem;
+}
+
+.selection-count {
+  flex: 0 0 auto;
+  border-radius: 999px;
+  padding: 7px 11px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.tactics-player-list,
+.starting-player-list {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tactics-player {
+  display: flex;
+  min-height: 58px;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+.tactics-player.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.tactics-player:has(input:disabled) {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.tactics-player input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.tactics-player-info {
+  display: grid;
+  flex: 1;
+  gap: 2px;
+}
+
+.tactics-player-name {
+  color: var(--heading);
+  font-weight: 650;
+}
+
+.tactics-player-position {
+  color: var(--text);
+  font-size: 0.8rem;
+}
+
+.selection-indicator {
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.starting-player-list {
+  counter-reset: starting-eleven;
+  margin-bottom: 18px;
+}
+
+.starting-player-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--border);
+  padding: 9px 0;
+  color: var(--heading);
+  font-size: 0.875rem;
+}
+
+.starting-player-list li span:last-child {
+  color: var(--text);
+  font-size: 0.75rem;
+}
+
+.starting-empty {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 18px 12px;
+  color: var(--text);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.save-tactics-button {
+  width: 100%;
+  min-height: 46px;
+  border: 0;
+  border-radius: 10px;
+  padding: 10px 16px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  transition: background 160ms ease;
+}
+
+.save-tactics-button:hover:not(:disabled) {
+  background: var(--heading);
+}
+
+.save-tactics-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.save-tactics-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.tactics-message {
+  margin: 12px 0 0;
+  font-size: 0.85rem;
+}
+
+.page .success-message {
+  color: var(--accent);
+}
+
+.page .error-message {
+  color: #9c3328;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -326,6 +504,10 @@
   }
 
   .profile-card {
+    grid-template-columns: 1fr;
+  }
+
+  .tactics-layout {
     grid-template-columns: 1fr;
   }
 

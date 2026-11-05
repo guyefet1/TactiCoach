@@ -35,6 +35,90 @@ const fallbackPlayers: TheSportsDbPlayer[] = [
   },
 ]
 
+const tacticsPlayers: TheSportsDbPlayer[] = [
+  {
+    idPlayer: 'fallback-david-raya',
+    strPlayer: 'David Raya',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Goalkeeper',
+  },
+  {
+    idPlayer: 'fallback-ben-white',
+    strPlayer: 'Ben White',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Defender',
+  },
+  {
+    idPlayer: 'fallback-william-saliba',
+    strPlayer: 'William Saliba',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Defender',
+  },
+  {
+    idPlayer: 'fallback-gabriel-magalhaes',
+    strPlayer: 'Gabriel Magalhaes',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Defender',
+  },
+  {
+    idPlayer: 'fallback-jurrien-timber',
+    strPlayer: 'Jurrien Timber',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Defender',
+  },
+  {
+    idPlayer: 'fallback-declan-rice',
+    strPlayer: 'Declan Rice',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Midfielder',
+  },
+  {
+    idPlayer: 'fallback-martin-odegaard',
+    strPlayer: 'Martin Odegaard',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Midfielder',
+  },
+  {
+    idPlayer: 'fallback-kai-havertz',
+    strPlayer: 'Kai Havertz',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Forward',
+  },
+  {
+    idPlayer: 'fallback-bukayo-saka',
+    strPlayer: 'Bukayo Saka',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Forward',
+  },
+  {
+    idPlayer: 'fallback-gabriel-martinelli',
+    strPlayer: 'Gabriel Martinelli',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Forward',
+  },
+  {
+    idPlayer: 'fallback-leandro-trossard',
+    strPlayer: 'Leandro Trossard',
+    strRender: null,
+    strThumb: null,
+    strPosition: 'Forward',
+  },
+]
+
+const tacticsPlayerById = new Map(
+  tacticsPlayers.map((player) => [player.idPlayer, player]),
+)
+
 const fallbackProfiles: Record<string, TheSportsDbPlayerProfile> = {
   'fallback-bukayo-saka': {
     ...fallbackPlayers[0],
@@ -361,9 +445,184 @@ function PlayerProfile() {
 }
 
 function Tactics() {
+  const [selectedPlayerIds, setSelectedPlayerIds] = useState<string[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [message, setMessage] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const selectedPlayers = selectedPlayerIds
+    .map((id) => tacticsPlayerById.get(id))
+    .filter((player): player is TheSportsDbPlayer => player !== undefined)
+
+  useEffect(() => {
+    try {
+      const savedSquad = window.localStorage.getItem('tacticCoach_squad')
+
+      if (savedSquad) {
+        const parsedSquad: unknown = JSON.parse(savedSquad)
+        const isValidSquad =
+          Array.isArray(parsedSquad) &&
+          parsedSquad.length === 11 &&
+          parsedSquad.every(
+            (id): id is string =>
+              typeof id === 'string' && tacticsPlayerById.has(id),
+          ) &&
+          new Set(parsedSquad).size === 11
+
+        if (!isValidSquad) {
+          throw new Error(
+            'The saved lineup is invalid. Select 11 players and save it again.',
+          )
+        }
+
+        // oxlint-disable-next-line react/set-state-in-effect -- Restore the persisted lineup on mount.
+        setSelectedPlayerIds(parsedSquad)
+        setMessage('Loaded your saved starting 11.')
+      }
+    } catch (loadError) {
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Unable to load the saved lineup from this browser.',
+      )
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  function togglePlayer(playerId: string) {
+    setError(null)
+    setMessage(null)
+    setSelectedPlayerIds((currentIds) => {
+      if (currentIds.includes(playerId)) {
+        return currentIds.filter((id) => id !== playerId)
+      }
+
+      if (currentIds.length >= 11) {
+        return currentIds
+      }
+
+      return [...currentIds, playerId]
+    })
+  }
+
+  function saveTactics() {
+    if (selectedPlayerIds.length !== 11) {
+      setError('Select exactly 11 players before saving your tactics.')
+      return
+    }
+
+    try {
+      window.localStorage.setItem(
+        'tacticCoach_squad',
+        JSON.stringify(selectedPlayerIds),
+      )
+      setError(null)
+      setMessage('Your starting 11 has been saved.')
+    } catch {
+      setError('Unable to save your lineup to this browser.')
+      setMessage(null)
+    }
+  }
+
   return (
-    <Page title="Tactics">
-      <p>The tactics board will appear here.</p>
+    <Page
+      title="Tactics Board"
+      description="Choose exactly 11 players for your starting lineup."
+    >
+      {isLoading ? (
+        <div className="loading-state" role="status">
+          <span className="loading-spinner" aria-hidden="true" />
+          <span>Loading saved tactics...</span>
+        </div>
+      ) : (
+        <div className="tactics-layout">
+          <section className="tactics-roster" aria-labelledby="roster-heading">
+            <div className="tactics-section-heading">
+              <div>
+                <h2 id="roster-heading">Available players</h2>
+                <p>Select players to build your starting 11.</p>
+              </div>
+              <span className="selection-count" aria-live="polite">
+                {selectedPlayerIds.length} / 11 selected
+              </span>
+            </div>
+            <ul className="tactics-player-list">
+              {tacticsPlayers.map((player) => {
+                const isSelected = selectedPlayerIds.includes(player.idPlayer)
+                const isUnavailable =
+                  !isSelected && selectedPlayerIds.length === 11
+
+                return (
+                  <li key={player.idPlayer}>
+                    <label
+                      className={`tactics-player${isSelected ? ' selected' : ''}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        disabled={isUnavailable}
+                        onChange={() => togglePlayer(player.idPlayer)}
+                      />
+                      <span className="tactics-player-info">
+                        <span className="tactics-player-name">
+                          {player.strPlayer}
+                        </span>
+                        <span className="tactics-player-position">
+                          {player.strPosition}
+                        </span>
+                      </span>
+                      <span className="selection-indicator" aria-hidden="true">
+                        {isSelected ? 'Selected' : 'Add'}
+                      </span>
+                    </label>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+
+          <aside className="starting-eleven" aria-labelledby="starting-heading">
+            <div className="tactics-section-heading">
+              <div>
+                <h2 id="starting-heading">Starting 11</h2>
+                <p>Your selected lineup</p>
+              </div>
+            </div>
+            {selectedPlayers.length > 0 ? (
+              <ol className="starting-player-list">
+                {selectedPlayers.map((player) => (
+                  <li key={player.idPlayer}>
+                    <span>{player.strPlayer}</span>
+                    <span>{player.strPosition}</span>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="starting-empty">
+                Your selected players will appear here.
+              </p>
+            )}
+            <button
+              className="save-tactics-button"
+              type="button"
+              disabled={selectedPlayerIds.length !== 11}
+              onClick={saveTactics}
+            >
+              Save Tactics
+            </button>
+            {error && (
+              <p className="tactics-message error-message" role="alert">
+                {error}
+              </p>
+            )}
+            {message && (
+              <p className="tactics-message success-message" role="status">
+                {message}
+              </p>
+            )}
+          </aside>
+        </div>
+      )}
     </Page>
   )
 }
