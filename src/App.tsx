@@ -1,8 +1,10 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
+import { Link, NavLink, Route, Routes, useParams } from 'react-router-dom'
 import {
+  parseTheSportsDbPlayerProfileResponse,
   parseTheSportsDbPlayersResponse,
   type TheSportsDbPlayer,
+  type TheSportsDbPlayerProfile,
 } from './types/player'
 import './App.css'
 
@@ -32,6 +34,27 @@ const fallbackPlayers: TheSportsDbPlayer[] = [
     strPosition: 'Midfielder',
   },
 ]
+
+const fallbackProfiles: Record<string, TheSportsDbPlayerProfile> = {
+  'fallback-bukayo-saka': {
+    ...fallbackPlayers[0],
+    strNationality: 'England',
+    strDescriptionEN:
+      'Bukayo Saka is an English winger known for his pace, creativity, and attacking threat.',
+  },
+  'fallback-martin-odegaard': {
+    ...fallbackPlayers[1],
+    strNationality: 'Norway',
+    strDescriptionEN:
+      'Martin Odegaard is a Norwegian midfielder known for his vision, technique, and playmaking.',
+  },
+  'fallback-declan-rice': {
+    ...fallbackPlayers[2],
+    strNationality: 'England',
+    strDescriptionEN:
+      'Declan Rice is an English midfielder known for his work rate, ball-winning, and distribution.',
+  },
+}
 
 function Home() {
   const [players, setPlayers] = useState<TheSportsDbPlayer[]>([])
@@ -149,23 +172,31 @@ function Home() {
                 const imageUrl = player.strRender?.trim() || player.strThumb?.trim()
 
                 return (
-                  <li className="player-card" key={player.idPlayer}>
-                    {imageUrl ? (
-                      <img
-                        className="player-image"
-                        src={imageUrl}
-                        alt={player.strPlayer}
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="player-image player-image-placeholder" aria-hidden="true">
-                        <span>{player.strPlayer.charAt(0)}</span>
+                  <li key={player.idPlayer}>
+                    <Link
+                      className="player-card"
+                      to={`/players/${encodeURIComponent(player.idPlayer)}`}
+                    >
+                      {imageUrl ? (
+                        <img
+                          className="player-image"
+                          src={imageUrl}
+                          alt={player.strPlayer}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className="player-image player-image-placeholder"
+                          aria-hidden="true"
+                        >
+                          <span>{player.strPlayer.charAt(0)}</span>
+                        </div>
+                      )}
+                      <div className="player-card-content">
+                        <h2>{player.strPlayer}</h2>
+                        <p>{player.strPosition?.trim() || 'Position not listed'}</p>
                       </div>
-                    )}
-                    <div className="player-card-content">
-                      <h2>{player.strPlayer}</h2>
-                      <p>{player.strPosition?.trim() || 'Position not listed'}</p>
-                    </div>
+                    </Link>
                   </li>
                 )
               })}
@@ -202,9 +233,129 @@ function Home() {
 }
 
 function PlayerProfile() {
+  const { id } = useParams<{ id: string }>()
+  const [player, setPlayer] = useState<TheSportsDbPlayerProfile | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUsingFallback, setIsUsingFallback] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const timeoutController = new AbortController()
+    const timeoutId = window.setTimeout(() => timeoutController.abort(), 8000)
+    const signal = AbortSignal.any([
+      controller.signal,
+      timeoutController.signal,
+    ])
+
+    async function loadPlayer() {
+      if (!id) {
+        setIsLoading(false)
+        return
+      }
+
+      const fallbackProfile = fallbackProfiles[id]
+
+      try {
+        if (fallbackProfile) {
+          setPlayer(fallbackProfile)
+          setIsUsingFallback(true)
+          return
+        }
+
+        const url = new URL(
+          'https://www.thesportsdb.com/api/v1/json/3/lookupplayer.php',
+        )
+        url.searchParams.set('id', id)
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url.toString())}`
+        const response = await fetch(proxyUrl, { signal })
+
+        if (!response.ok) {
+          throw new Error(`TheSportsDB returned an HTTP ${response.status} error.`)
+        }
+
+        const data: unknown = await response.json()
+        const result = parseTheSportsDbPlayerProfileResponse(data)
+        const foundPlayer = result.players?.find(
+          (profile) => profile.idPlayer === id,
+        )
+
+        if (!foundPlayer) {
+          throw new Error('The requested player was not found.')
+        }
+
+        setPlayer(foundPlayer)
+      } catch {
+        if (controller.signal.aborted) {
+          return
+        }
+
+        setPlayer(fallbackProfile ?? null)
+        setIsUsingFallback(Boolean(fallbackProfile))
+      } finally {
+        window.clearTimeout(timeoutId)
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadPlayer()
+    return () => {
+      window.clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [id])
+
+  const imageUrl = player?.strRender?.trim() || player?.strThumb?.trim()
+
   return (
-    <Page title="Player Profile">
-      <p>Player details will appear here.</p>
+    <Page title={player?.strPlayer ?? 'Player Profile'}>
+      {isLoading ? (
+        <div className="loading-state" role="status">
+          <span className="loading-spinner" aria-hidden="true" />
+          <span>Loading player profile...</span>
+        </div>
+      ) : player ? (
+        <article className="player-profile">
+          {isUsingFallback && (
+            <p className="fallback-notice" role="status">
+              Showing sample profile because live player details are unavailable.
+            </p>
+          )}
+          <div className="profile-card">
+            {imageUrl ? (
+              <img
+                className="profile-image"
+                src={imageUrl}
+                alt={player.strPlayer}
+              />
+            ) : (
+              <div
+                className="profile-image profile-image-placeholder"
+                aria-hidden="true"
+              >
+                {player.strPlayer.charAt(0)}
+              </div>
+            )}
+            <div className="profile-details">
+              <p className="profile-nationality">
+                {player.strNationality?.trim() || 'Nationality not listed'}
+              </p>
+              <p>
+                {player.strDescriptionEN?.trim() ||
+                  'No player description is available.'}
+              </p>
+            </div>
+          </div>
+        </article>
+      ) : (
+        <p className="empty-state" role="status">
+          Player details are unavailable.
+        </p>
+      )}
+      <Link className="back-to-squad" to="/">
+        Back to Squad
+      </Link>
     </Page>
   )
 }

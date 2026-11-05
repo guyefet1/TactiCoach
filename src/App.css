@@ -114,19 +114,28 @@
 }
 
 .player-card {
+  display: block;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 16px;
   background: var(--surface);
   box-shadow: 0 8px 24px rgb(22 39 36 / 5%);
+  color: inherit;
+  text-decoration: none;
   transition:
     box-shadow 180ms ease,
     transform 180ms ease;
 }
 
-.player-card:hover {
+.player-card:hover,
+.player-card:focus-visible {
   transform: translateY(-3px);
   box-shadow: 0 14px 30px rgb(22 39 36 / 11%);
+}
+
+.player-card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
 }
 
 .player-image {
@@ -208,6 +217,78 @@
   text-align: center;
 }
 
+.player-profile {
+  margin-bottom: 24px;
+}
+
+.profile-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  box-shadow: 0 12px 32px rgb(22 39 36 / 7%);
+}
+
+.profile-image {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  max-height: 520px;
+  object-fit: cover;
+  object-position: center 24%;
+  background: var(--accent-soft);
+}
+
+.profile-image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--accent);
+  font-size: 7rem;
+  font-weight: 750;
+}
+
+.profile-details {
+  align-self: center;
+  padding: clamp(24px, 5vw, 48px);
+}
+
+.page .profile-details p {
+  margin: 0;
+  line-height: 1.75;
+}
+
+.page .profile-details .profile-nationality {
+  margin-bottom: 16px;
+  color: var(--accent);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.back-to-squad {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 10px 18px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 160ms ease;
+}
+
+.back-to-squad:hover {
+  background: var(--heading);
+}
+
+.back-to-squad:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -242,6 +323,15 @@
   .player-filters {
     grid-template-columns: 1fr;
     gap: 12px;
+  }
+
+  .profile-card {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-image {
+    min-height: 260px;
+    max-height: 380px;
   }
 
   .player-image {

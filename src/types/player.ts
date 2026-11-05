@@ -10,6 +10,15 @@ export interface TheSportsDbPlayersResponse {
   player: TheSportsDbPlayer[] | null
 }
 
+export interface TheSportsDbPlayerProfile extends TheSportsDbPlayer {
+  strNationality: string | null
+  strDescriptionEN: string | null
+}
+
+export interface TheSportsDbPlayerProfileResponse {
+  players: TheSportsDbPlayerProfile[] | null
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
@@ -29,6 +38,17 @@ function isTheSportsDbPlayer(value: unknown): value is TheSportsDbPlayer {
   )
 }
 
+function isTheSportsDbPlayerProfile(
+  value: unknown,
+): value is TheSportsDbPlayerProfile {
+  return (
+    isRecord(value) &&
+    isTheSportsDbPlayer(value) &&
+    isNullableString(value.strNationality) &&
+    isNullableString(value.strDescriptionEN)
+  )
+}
+
 export function parseTheSportsDbPlayersResponse(
   value: unknown,
 ): TheSportsDbPlayersResponse {
@@ -41,4 +61,19 @@ export function parseTheSportsDbPlayersResponse(
   }
 
   return { player: value.player }
+}
+
+export function parseTheSportsDbPlayerProfileResponse(
+  value: unknown,
+): TheSportsDbPlayerProfileResponse {
+  if (
+    !isRecord(value) ||
+    (value.players !== null &&
+      (!Array.isArray(value.players) ||
+        !value.players.every(isTheSportsDbPlayerProfile)))
+  ) {
+    throw new Error('The player profile response from TheSportsDB was invalid.')
+  }
+
+  return { players: value.players }
 }
