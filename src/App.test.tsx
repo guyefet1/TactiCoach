@@ -28,21 +28,25 @@ describe('TactiCoach app', () => {
 
     expect(
       await screen.findByText(
-        'Showing sample Arsenal players because the live roster is unavailable.',
+        'Showing sample Maccabi Tel Aviv players because the live roster is unavailable.',
       ),
     ).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Bukayo Saka' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Martin Odegaard' })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Declan Rice' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'Maccabi Tel Aviv Squad' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Eran Zahavi' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Gabi Kanichowsky' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Dor Peretz' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Raz Shlomo' })).toBeInTheDocument()
   })
 
   it('filters players by name without regard to case and combines the position filter', async () => {
     mockApiFailure()
     const { container } = renderApp()
-    await screen.findByRole('heading', { name: 'Bukayo Saka' })
+    await screen.findByRole('heading', { name: 'Eran Zahavi' })
 
     fireEvent.change(screen.getByRole('searchbox', { name: 'Search players' }), {
-      target: { value: 'RICE' },
+      target: { value: 'DOR' },
     })
     fireEvent.change(screen.getByRole('combobox', { name: 'Position' }), {
       target: { value: 'Midfielder' },
@@ -51,7 +55,7 @@ describe('TactiCoach app', () => {
     const cards = container.querySelectorAll('.player-card')
     expect(cards).toHaveLength(1)
     expect(
-      screen.getByRole('heading', { name: 'Declan Rice' }),
+      screen.getByRole('heading', { name: 'Dor Peretz' }),
     ).toBeInTheDocument()
 
     fireEvent.change(screen.getByRole('combobox', { name: 'Position' }), {
@@ -66,26 +70,26 @@ describe('TactiCoach app', () => {
     mockApiFailure()
     renderApp()
     const playerLink = await screen.findByRole('link', {
-      name: /Bukayo Saka.*Forward/,
+      name: /Eran Zahavi.*Forward/,
     })
 
     fireEvent.click(playerLink)
 
     expect(await screen.findByTestId('current-location')).toHaveTextContent(
-      '/players/fallback-bukayo-saka',
+      '/players/fallback-eran-zahavi',
     )
     expect(
       await screen.findByText(
         'Showing sample profile because live player details are unavailable.',
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText('England')).toBeInTheDocument()
-    expect(screen.getByText(/English winger known/)).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: 'Bukayo Saka' })).toBeInTheDocument()
+    expect(screen.getByText('Israel')).toBeInTheDocument()
+    expect(screen.getByText(/Israeli striker known/)).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Eran Zahavi' })).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('link', { name: 'Back to Squad' }))
     expect(await screen.findByTestId('current-location')).toHaveTextContent('/')
-    expect(await screen.findByRole('heading', { name: 'Arsenal Squad' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Maccabi Tel Aviv Squad' })).toBeInTheDocument()
   })
 
   it('requires exactly 11 players and saves the selected lineup to localStorage', async () => {

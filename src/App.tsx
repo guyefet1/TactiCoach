@@ -14,28 +14,36 @@ import './App.css'
 
 const fallbackPlayers: TheSportsDbPlayer[] = [
   {
-    idPlayer: 'fallback-bukayo-saka',
-    strPlayer: 'Bukayo Saka',
+    idPlayer: 'fallback-eran-zahavi',
+    strPlayer: 'Eran Zahavi',
     strRender: null,
     strThumb:
-      'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Bukayo_Saka_England_v_Ghana_23_June_2026-057_%28cropped%29.jpg/500px-Bukayo_Saka_England_v_Ghana_23_June_2026-057_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/55/EranZeahviCelebrating.jpg/500px-EranZeahviCelebrating.jpg',
     strPosition: 'Forward',
   },
   {
-    idPlayer: 'fallback-martin-odegaard',
-    strPlayer: 'Martin Odegaard',
+    idPlayer: 'fallback-gabi-kanichowsky',
+    strPlayer: 'Gabi Kanichowsky',
     strRender: null,
     strThumb:
-      'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/13/Martin_Odegaard_France_v_Norway_26_June_26-014.jpg/500px-Martin_Odegaard_France_v_Norway_26_June_26-014.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c4/%D7%92%D7%91%D7%99_%D7%A7%D7%A0%D7%99%D7%A7%D7%95%D7%91%D7%A1%D7%A7%D7%99.jpg/500px-%D7%92%D7%91%D7%99_%D7%A7%D7%A0%D7%99%D7%A7%D7%95%D7%91%D7%A1%D7%A7%D7%99.jpg',
     strPosition: 'Midfielder',
   },
   {
-    idPlayer: 'fallback-declan-rice',
-    strPlayer: 'Declan Rice',
+    idPlayer: 'fallback-dor-peretz',
+    strPlayer: 'Dor Peretz',
     strRender: null,
     strThumb:
-      'https://thumb.wikimedia.org/wikipedia/commons/thumb/5/5d/Declan_Rice_England_v_Ghana_23_June_2026-150.jpg/500px-Declan_Rice_England_v_Ghana_23_June_2026-150.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail',
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Dor_Peretz.JPG/500px-Dor_Peretz.JPG',
     strPosition: 'Midfielder',
+  },
+  {
+    idPlayer: 'fallback-raz-shlomo',
+    strPlayer: 'Raz Shlomo',
+    strRender: null,
+    strThumb:
+      'https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Raz_Shlomo_Hapoel_2018_2.jpg/500px-Raz_Shlomo_Hapoel_2018_2.jpg',
+    strPosition: 'Defender',
   },
 ]
 
@@ -139,23 +147,29 @@ const fallbackTeams: TheSportsDbTeam[] = [
 ]
 
 const fallbackProfiles: Record<string, TheSportsDbPlayerProfile> = {
-  'fallback-bukayo-saka': {
+  'fallback-eran-zahavi': {
     ...fallbackPlayers[0],
-    strNationality: 'England',
+    strNationality: 'Israel',
     strDescriptionEN:
-      'Bukayo Saka is an English winger known for his pace, creativity, and attacking threat.',
+      'Eran Zahavi is an Israeli striker known for his prolific scoring and leadership.',
   },
-  'fallback-martin-odegaard': {
+  'fallback-gabi-kanichowsky': {
     ...fallbackPlayers[1],
-    strNationality: 'Norway',
+    strNationality: 'Israel',
     strDescriptionEN:
-      'Martin Odegaard is a Norwegian midfielder known for his vision, technique, and playmaking.',
+      'Gabi Kanichowsky is an Israeli midfielder known for his passing and creative play.',
   },
-  'fallback-declan-rice': {
+  'fallback-dor-peretz': {
     ...fallbackPlayers[2],
-    strNationality: 'England',
+    strNationality: 'Israel',
     strDescriptionEN:
-      'Declan Rice is an English midfielder known for his work rate, ball-winning, and distribution.',
+      'Dor Peretz is an Israeli midfielder known for his energy and ability to contribute in attack.',
+  },
+  'fallback-raz-shlomo': {
+    ...fallbackPlayers[3],
+    strNationality: 'Israel',
+    strDescriptionEN:
+      'Raz Shlomo is an Israeli centre-back who plays in defence for Maccabi Tel Aviv.',
   },
 }
 
@@ -190,7 +204,7 @@ function Home() {
     async function loadPlayers() {
       try {
         const response = await fetch(
-          'https://api.allorigins.win/raw?url=https%3A%2F%2Fwww.thesportsdb.com%2Fapi%2Fv1%2Fjson%2F3%2Fsearchplayers.php%3Ft%3DArsenal',
+          'https://api.allorigins.win/raw?url=https%3A%2F%2Fwww.thesportsdb.com%2Fapi%2Fv1%2Fjson%2F3%2Fsearchplayers.php%3Ft%3DMaccabi%2520Tel%2520Aviv',
           { signal },
         )
 
@@ -230,8 +244,8 @@ function Home() {
 
   return (
     <Page
-      title="Arsenal Squad"
-      description="Meet the players representing Arsenal."
+      title="Maccabi Tel Aviv Squad"
+      description="Meet the players representing Maccabi Tel Aviv."
     >
       {isLoading ? (
         <div className="loading-state" role="status">
@@ -242,7 +256,7 @@ function Home() {
         <>
           {isUsingFallback && (
             <p className="fallback-notice" role="status">
-              Showing sample Arsenal players because the live roster is unavailable.
+              Showing sample Maccabi Tel Aviv players because the live roster is unavailable.
             </p>
           )}
           <div className="player-filters">
@@ -311,21 +325,34 @@ function Home() {
           )}
           {isUsingFallback && (
             <p className="image-attribution">
-              Sample photos by{' '}
+              Sample photos: {' '}
               <a
-                href="https://commons.wikimedia.org/wiki/User:Berlination"
+                href="https://commons.wikimedia.org/wiki/File:EranZeahviCelebrating.jpg"
                 target="_blank"
                 rel="noreferrer"
               >
-                Bryan Berlin
+                Eran Zahavi (Nir Keidar, CC BY-SA 3.0)
               </a>
-              {' · '}
               <a
-                href="https://creativecommons.org/licenses/by-sa/4.0/"
+                href="https://commons.wikimedia.org/wiki/File:%D7%92%D7%91%D7%99_%D7%A7%D7%A0%D7%99%D7%A7%D7%95%D7%91%D7%A1%D7%A7%D7%99.jpg"
                 target="_blank"
                 rel="noreferrer"
               >
-                CC BY-SA 4.0
+                {' · '}Gabi Kanichowsky (Adir Benyamini, CC BY-SA 4.0)
+              </a>
+              <a
+                href="https://commons.wikimedia.org/wiki/File:Dor_Peretz.JPG"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {' · '}Dor Peretz (Botend, CC BY-SA 4.0)
+              </a>
+              <a
+                href="https://commons.wikimedia.org/wiki/File:Raz_Shlomo_Hapoel_2018_2.jpg"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {' · '}Raz Shlomo (Sebastian27, CC BY-SA 4.0)
               </a>
             </p>
           )}
