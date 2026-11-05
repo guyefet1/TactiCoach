@@ -1,32 +1,34 @@
-# React + TypeScript + Vite
+# TactiCoach
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+TactiCoach is a web app for football coaches preparing for matches. It provides:
 
-Currently, two official plugins are available:
+- A Maccabi Tel Aviv squad list with player search and position filters.
+- Player profiles with photos and player details.
+- A tactics board for selecting and saving a starting eleven.
+- An opponents page for Israeli Premier League teams.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Getting started
 
-## React Compiler
+Install dependencies:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Start the development server:
+
+```bash
+npm run dev
+```
+
+## Unit tests
+
+Run the Vitest UI:
+
+```bash
+npm run test:ui
+```
+
+## Player data
+
+The app uses the [TheSportsDB API](https://www.thesportsdb.com/) to request squad and league data. API requests may be blocked by CORS or other network errors, so TactiCoach includes independent Maccabi Tel Aviv fallback squad data to keep the Squad and Tactics pages usable when live data is unavailable.
