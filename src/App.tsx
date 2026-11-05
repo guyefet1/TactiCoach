@@ -37,6 +37,20 @@ function Home() {
   const [players, setPlayers] = useState<TheSportsDbPlayer[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isUsingFallback, setIsUsingFallback] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedPosition, setSelectedPosition] = useState('')
+
+  const filteredPlayers = players.filter((player) => {
+    const matchesName = player.strPlayer
+      .toLocaleLowerCase()
+      .includes(searchQuery.trim().toLocaleLowerCase())
+    const matchesPosition =
+      !selectedPosition ||
+      player.strPosition?.trim().toLocaleLowerCase() ===
+        selectedPosition.toLocaleLowerCase()
+
+    return matchesName && matchesPosition
+  })
 
   useEffect(() => {
     const controller = new AbortController()
@@ -105,32 +119,62 @@ function Home() {
               Showing sample Arsenal players because the live roster is unavailable.
             </p>
           )}
-          <ul className="player-grid">
-            {players.map((player) => {
-              const imageUrl = player.strRender?.trim() || player.strThumb?.trim()
+          <div className="player-filters">
+            <label className="filter-field">
+              <span>Search players</span>
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search by name"
+              />
+            </label>
+            <label className="filter-field">
+              <span>Position</span>
+              <select
+                value={selectedPosition}
+                onChange={(event) => setSelectedPosition(event.target.value)}
+              >
+                <option value="">All positions</option>
+                <option value="Forward">Forward</option>
+                <option value="Midfielder">Midfielder</option>
+                <option value="Defender">Defender</option>
+                <option value="Goalkeeper">Goalkeeper</option>
+              </select>
+            </label>
+          </div>
+          {filteredPlayers.length > 0 ? (
+            <ul className="player-grid">
+              {filteredPlayers.map((player) => {
+                const imageUrl = player.strRender?.trim() || player.strThumb?.trim()
 
-              return (
-                <li className="player-card" key={player.idPlayer}>
-                  {imageUrl ? (
-                    <img
-                      className="player-image"
-                      src={imageUrl}
-                      alt={player.strPlayer}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="player-image player-image-placeholder" aria-hidden="true">
-                      <span>{player.strPlayer.charAt(0)}</span>
+                return (
+                  <li className="player-card" key={player.idPlayer}>
+                    {imageUrl ? (
+                      <img
+                        className="player-image"
+                        src={imageUrl}
+                        alt={player.strPlayer}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="player-image player-image-placeholder" aria-hidden="true">
+                        <span>{player.strPlayer.charAt(0)}</span>
+                      </div>
+                    )}
+                    <div className="player-card-content">
+                      <h2>{player.strPlayer}</h2>
+                      <p>{player.strPosition?.trim() || 'Position not listed'}</p>
                     </div>
-                  )}
-                  <div className="player-card-content">
-                    <h2>{player.strPlayer}</h2>
-                    <p>{player.strPosition?.trim() || 'Position not listed'}</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+                  </li>
+                )
+              })}
+            </ul>
+          ) : (
+            <p className="empty-state" role="status">
+              No players match your search and position filters.
+            </p>
+          )}
           {isUsingFallback && (
             <p className="image-attribution">
               Sample photos by{' '}
