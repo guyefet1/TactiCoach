@@ -6,6 +6,10 @@ import {
   type TheSportsDbPlayer,
   type TheSportsDbPlayerProfile,
 } from './types/player'
+import {
+  parseTheSportsDbTeamsResponse,
+  type TheSportsDbTeam,
+} from './types/team'
 import './App.css'
 
 const fallbackPlayers: TheSportsDbPlayer[] = [
@@ -118,6 +122,21 @@ const tacticsPlayers: TheSportsDbPlayer[] = [
 const tacticsPlayerById = new Map(
   tacticsPlayers.map((player) => [player.idPlayer, player]),
 )
+
+const fallbackTeams: TheSportsDbTeam[] = [
+  { idTeam: 'fallback-maccabi-tel-aviv', strTeam: 'Maccabi Tel Aviv', strLocation: 'Tel Aviv', strStadium: 'Bloomfield Stadium' },
+  { idTeam: 'fallback-hapoel-beer-sheva', strTeam: 'Hapoel Be\'er Sheva', strLocation: 'Be\'er Sheva', strStadium: 'Toto Turner Stadium' },
+  { idTeam: 'fallback-maccabi-haifa', strTeam: 'Maccabi Haifa', strLocation: 'Haifa', strStadium: 'Sammy Ofer Stadium' },
+  { idTeam: 'fallback-beitar-jerusalem', strTeam: 'Beitar Jerusalem', strLocation: 'Jerusalem', strStadium: 'Teddy Stadium' },
+  { idTeam: 'fallback-hapoel-tel-aviv', strTeam: 'Hapoel Tel Aviv', strLocation: 'Tel Aviv', strStadium: 'Bloomfield Stadium' },
+  { idTeam: 'fallback-hapoel-haifa', strTeam: 'Hapoel Haifa', strLocation: 'Haifa', strStadium: 'Sammy Ofer Stadium' },
+  { idTeam: 'fallback-maccabi-netanya', strTeam: 'Maccabi Netanya', strLocation: 'Netanya', strStadium: 'Netanya Stadium' },
+  { idTeam: 'fallback-bnei-sakhnin', strTeam: 'Bnei Sakhnin', strLocation: 'Sakhnin', strStadium: 'Doha Stadium' },
+  { idTeam: 'fallback-hapoel-jerusalem', strTeam: 'Hapoel Jerusalem', strLocation: 'Jerusalem', strStadium: 'Teddy Stadium' },
+  { idTeam: 'fallback-ashdod', strTeam: 'Ashdod SC', strLocation: 'Ashdod', strStadium: 'Yud-Alef Stadium' },
+  { idTeam: 'fallback-maccabi-petah-tikva', strTeam: 'Maccabi Petah Tikva', strLocation: 'Petah Tikva', strStadium: 'HaMoshava Stadium' },
+  { idTeam: 'fallback-hapoel-hadera', strTeam: 'Hapoel Hadera', strLocation: 'Hadera', strStadium: 'Netanya Stadium' },
+]
 
 const fallbackProfiles: Record<string, TheSportsDbPlayerProfile> = {
   'fallback-bukayo-saka': {
@@ -628,11 +647,117 @@ function Tactics() {
 }
 
 function Opponents() {
+  const [teams, setTeams] = useState<TheSportsDbTeam[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isUsingFallback, setIsUsingFallback] = useState(false)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const timeoutController = new AbortController()
+    const timeoutId = window.setTimeout(() => timeoutController.abort(), 8000)
+    const signal = AbortSignal.any([
+      controller.signal,
+      timeoutController.signal,
+    ])
+
+    async function loadTeams() {
+      try {
+        const response = await fetch(
+          'https://www.thesportsdb.com/api/v1/json/1/search_all_teams.php?l=Israeli%20Premier%20League',
+          { signal },
+        )
+
+        if (!response.ok) {
+          throw new Error(`TheSportsDB returned an HTTP ${response.status} error.`)
+        }
+
+        const data: unknown = await response.json()
+        const result = parseTheSportsDbTeamsResponse(data)
+        if (result.teams?.length) {
+          setTeams(result.teams)
+        } else {
+          setTeams(fallbackTeams)
+          setIsUsingFallback(true)
+        }
+      } catch {
+        if (controller.signal.aborted) {
+          return
+        }
+
+        setTeams(fallbackTeams)
+        setIsUsingFallback(true)
+      } finally {
+        window.clearTimeout(timeoutId)
+        if (!controller.signal.aborted) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    void loadTeams()
+    return () => {
+      window.clearTimeout(timeoutId)
+      controller.abort()
+    }
+  }, [])
+
   return (
-    <Page title="Opponents">
-      <p>League opponents will appear here.</p>
+    <Page
+      title="League Opponents"
+      description="Explore the teams competing in the Israeli Premier League."
+    >
+      {isLoading ? (
+        <div className="loading-state" role="status">
+          <span className="loading-spinner" aria-hidden="true" />
+          <span>Loading league teams...</span>
+        </div>
+      ) : (
+        <>
+          {isUsingFallback && (
+            <p className="fallback-notice" role="status">
+              Showing sample league teams because live team data is unavailable.
+            </p>
+          )}
+          <ul className="team-grid">
+            {teams.map((team, index) => {
+              const logoUrl =
+                team.strTeamBadge?.trim() ||
+                team.strBadge?.trim() ||
+                team.strTeamLogo?.trim() ||
+                createTeamBadge(team.strTeam, index)
+
+              return (
+                <li className="team-card" key={team.idTeam}>
+                  <img className="team-logo" src={logoUrl} alt="" />
+                  <div className="team-card-content">
+                    <h2>{team.strTeam}</h2>
+                    <p>{team.strLocation?.trim() || 'Israel'}</p>
+                    {team.strStadium?.trim() && (
+                      <p className="team-stadium">{team.strStadium}</p>
+                    )}
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </>
+      )}
     </Page>
   )
+}
+
+function createTeamBadge(teamName: string, index: number) {
+  const colors = ['#187653', '#1d4e89', '#a52834', '#6a3d8f']
+  const initials = teamName
+    .split(/\s+/)
+    .filter((word) => word.length > 2)
+    .slice(0, 2)
+    .map((word) => word[0])
+    .join('')
+    .toUpperCase()
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 112"><path d="M50 4 91 19v32c0 26-17 45-41 57C26 96 9 77 9 51V19z" fill="${colors[index % colors.length]}"/><path d="M50 13 82 25v26c0 20-12 35-32 46-20-11-32-26-32-46V25z" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2"/><text x="50" y="62" fill="#fff" font-family="Arial,sans-serif" font-size="27" font-weight="700" text-anchor="middle">${initials}</text></svg>`
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
 function Page({
