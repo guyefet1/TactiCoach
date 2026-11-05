@@ -10,6 +10,7 @@ import {
   parseTheSportsDbTeamsResponse,
   type TheSportsDbTeam,
 } from './types/team'
+import NotFound from './NotFound'
 import './App.css'
 
 const fallbackPlayers: TheSportsDbPlayer[] = [
@@ -858,6 +859,7 @@ function App() {
           <Route path="/players/:id" element={<PlayerProfile />} />
           <Route path="/tactics" element={<Tactics />} />
           <Route path="/opponents" element={<Opponents />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
     </div>

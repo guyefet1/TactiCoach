@@ -104,6 +104,23 @@ describe('TactiCoach app', () => {
     expect(await screen.findByRole('heading', { name: 'Maccabi Tel Aviv Squad' })).toBeInTheDocument()
   })
 
+  it('shows a friendly 404 page and returns to the squad', async () => {
+    mockApiFailure()
+    renderApp('/this-page-does-not-exist')
+
+    expect(
+      screen.getByRole('heading', { name: 'We can’t find that page' }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('404')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('link', { name: 'Back to Squad' }))
+
+    expect(await screen.findByTestId('current-location')).toHaveTextContent('/')
+    expect(
+      await screen.findByRole('heading', { name: 'Maccabi Tel Aviv Squad' }),
+    ).toBeInTheDocument()
+  })
+
   it('shows 12 Maccabi fallback players and requires exactly 11 for the lineup', async () => {
     renderApp('/tactics')
 
