@@ -7,6 +7,16 @@ TactiCoach is a web app for football coaches preparing for matches. It provides:
 - A tactics board for selecting and saving a starting eleven.
 - An opponents page for Israeli Premier League teams.
 
+## Project structure
+
+- `src/App.tsx` — application shell and route definitions.
+- `src/pages/` — Squad, Player Profile, Tactics, Opponents, and Not Found pages.
+- `src/components/` — shared Navbar, Page layout, and loading state.
+- `src/services/` — TheSportsDB requests and response parsing.
+- `src/data/` — fallback players, profiles, teams, and tactics constants.
+- `src/types/` — TypeScript API models and runtime response validation.
+- `src/utils/` — shared utilities such as generated team badges.
+
 ## Getting started
 
 Install dependencies:
